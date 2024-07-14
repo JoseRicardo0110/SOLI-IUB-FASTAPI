@@ -29,7 +29,8 @@ origins = [
     "http://localhost:8080",
     "http://localhost:8000",
     "http://localhost:3000",
-    "https://soli-iub-front.onrender.com"
+    "https://soli-iub-front.onrender.com",
+    "https://soli-iub-front.vercel.app/"
 ]
 
 app.add_middleware(
