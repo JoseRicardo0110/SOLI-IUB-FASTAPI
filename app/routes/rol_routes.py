@@ -17,7 +17,7 @@ def add_modulo_a_rol(role_module: RoleModule):
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO rolxmodulo (id, idrol, idmodulo) VALUES (NULL, %s, %s)", 
+        cursor.execute("INSERT INTO rolxmodulo (idrol, idmodulo) VALUES (%s, %s)", 
                        (role_module.idrol, role_module.idmodulo))
         conn.commit()
         return {"message": "Module added to role"}
