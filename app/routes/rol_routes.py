@@ -5,6 +5,7 @@ from typing import List
 from fastapi.encoders import jsonable_encoder
 import mysql.connector
 from models.rol_model import Modulo
+from models.rol_model import RoleModule
 
 
 router = APIRouter()
