@@ -11,3 +11,7 @@ class Modulo(BaseModel):
 class RoleModule(BaseModel):
     idrol: int
     idmodulo: int
+
+class RoleCreate(BaseModel):
+    nombre: str
+    descripcion: str

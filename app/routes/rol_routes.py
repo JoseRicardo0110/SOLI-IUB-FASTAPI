@@ -6,11 +6,28 @@ from fastapi.encoders import jsonable_encoder
 import mysql.connector
 from models.rol_model import Modulo
 from models.rol_model import RoleModule
+from models.rol_model import RoleCreate
 
 
 router = APIRouter()
 
 nuevo_rol = RolController()
+
+@router.post("/create_rol")
+def create_rol(role: RoleCreate):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO rol (NombreRol, DescripcionRol) VALUES (%s, %s)", 
+                       (role.nombre, role.descripcion))
+        conn.commit()
+        return {"message": "Role created successfully"}
+                
+    except mysql.connector.Error as err:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=str(err))
+    finally:
+        conn.close()
 
 @router.post("/add_modulo_a_rol")
 def add_modulo_a_rol(role_module: RoleModule):
