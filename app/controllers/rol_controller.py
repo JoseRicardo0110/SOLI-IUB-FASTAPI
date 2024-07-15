@@ -2,7 +2,7 @@ import mysql.connector
 from fastapi import HTTPException
 from config.db_config import get_db_connection
 from models.rol_model import Rol
-from models.rol_model import Modulo
+
 from typing import List
 from fastapi.encoders import jsonable_encoder
 

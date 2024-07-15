@@ -4,15 +4,12 @@ from models.rol_model import Rol
 from typing import List
 from fastapi.encoders import jsonable_encoder
 import mysql.connector
+from models.rol_model import Modulo
 
 
 router = APIRouter()
 
 nuevo_rol = RolController()
-
-class RoleModule(BaseModel):
-    idrol: int
-    idmodulo: int
 
 @router.post("/add_modulo_a_rol")
 def add_modulo_a_rol(role_module: RoleModule):
