@@ -7,3 +7,7 @@ class Rol(BaseModel):
 class Modulo(BaseModel):
     id: int
     modulo: str
+
+class RoleModule(BaseModel):
+    idrol: int
+    idmodulo: int
