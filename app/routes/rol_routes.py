@@ -10,6 +10,41 @@ router = APIRouter()
 
 nuevo_rol = RolController()
 
+class RoleModule(BaseModel):
+    idrol: int
+    idmodulo: int
+
+@router.post("/add_modulo_a_rol")
+def add_modulo_a_rol(role_module: RoleModule):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO rolxmodulo (idrol, idmodulo) VALUES (%s, %s)", 
+                       (role_module.idrol, role_module.idmodulo))
+        conn.commit()
+        return {"message": "Module added to role"}
+                
+    except mysql.connector.Error as err:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=str(err))
+    finally:
+        conn.close()
+
+@router.delete("/remove_modulo_de_rol")
+def remove_modulo_de_rol(role_module: RoleModule):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM rolxmodulo WHERE idrol = %s AND idmodulo = %s", 
+                       (role_module.idrol, role_module.idmodulo))
+        conn.commit()
+        return {"message": "Module removed from role"}
+                
+    except mysql.connector.Error as err:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=str(err))
+    finally:
+        conn.close()
 @router.get("/get_all_modulos", response_model=List[dict])
 def get_all_modulos():
     try:
