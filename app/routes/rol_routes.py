@@ -19,21 +19,50 @@ def delete_rol(role: RoleDelete):
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
-        
-        # Eliminar la restricción de clave foránea si es necesario
-        cursor.execute("ALTER TABLE rolxmodulo DROP FOREIGN KEY rolxmodulo_ibfk_1")
-        cursor.execute("ALTER TABLE rolxusuario DROP FOREIGN KEY rolxusuario_ibfk_2")
-        
+
+        # Obtener y eliminar las restricciones de claves foráneas en rolxmodulo
+        cursor.execute("SHOW CREATE TABLE rolxmodulo")
+        result_rolxmodulo = cursor.fetchone()
+        create_table_sql_rolxmodulo = result_rolxmodulo[1]
+        foreign_key_name_rolxmodulo = None
+
+        for line in create_table_sql_rolxmodulo.split('\n'):
+            if 'FOREIGN KEY' in line and 'REFERENCES `rol`' in line:
+                foreign_key_name_rolxmodulo = line.split('CONSTRAINT `')[1].split('`')[0]
+                break
+
+        if foreign_key_name_rolxmodulo:
+            cursor.execute(f"ALTER TABLE rolxmodulo DROP FOREIGN KEY {foreign_key_name_rolxmodulo}")
+
+        # Obtener y eliminar las restricciones de claves foráneas en rolxusuario
+        cursor.execute("SHOW CREATE TABLE rolxusuario")
+        result_rolxusuario = cursor.fetchone()
+        create_table_sql_rolxusuario = result_rolxusuario[1]
+        foreign_key_name_rolxusuario = None
+
+        for line in create_table_sql_rolxusuario.split('\n'):
+            if 'FOREIGN KEY' in line and 'REFERENCES `rol`' in line:
+                foreign_key_name_rolxusuario = line.split('CONSTRAINT `')[1].split('`')[0]
+                break
+
+        if foreign_key_name_rolxusuario:
+            cursor.execute(f"ALTER TABLE rolxusuario DROP FOREIGN KEY {foreign_key_name_rolxusuario}")
+
         # Eliminar el rol
         cursor.execute("DELETE FROM rol WHERE IdRol = %s", (role.id,))
         conn.commit()
-        
-        # Volver a añadir las restricciones de clave foránea
-        cursor.execute("ALTER TABLE rolxmodulo ADD CONSTRAINT rolxmodulo_ibfk_1 FOREIGN KEY (idrol) REFERENCES rol(IdRol) ON DELETE CASCADE ON UPDATE CASCADE")
-        cursor.execute("ALTER TABLE rolxusuario ADD CONSTRAINT rolxusuario_ibfk_2 FOREIGN KEY (IdRol) REFERENCES rol(IdRol) ON DELETE CASCADE ON UPDATE CASCADE")
+
+        # Volver a añadir las restricciones de claves foráneas
+        if foreign_key_name_rolxmodulo:
+            cursor.execute(f"ALTER TABLE rolxmodulo ADD CONSTRAINT {foreign_key_name_rolxmodulo} FOREIGN KEY (idrol) REFERENCES rol(IdRol) ON DELETE CASCADE ON UPDATE CASCADE")
+
+        if foreign_key_name_rolxusuario:
+            cursor.execute(f"ALTER TABLE rolxusuario ADD CONSTRAINT {foreign_key_name_rolxusuario} FOREIGN KEY (IdRol) REFERENCES rol(IdRol) ON DELETE CASCADE ON UPDATE CASCADE")
+
         conn.commit()
-        
+
         return {"message": "Role deleted successfully"}
+
     except mysql.connector.Error as err:
         conn.rollback()
         raise HTTPException(status_code=500, detail=str(err))
