@@ -18,11 +18,21 @@ def create_rol(role: RoleCreate):
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
+
+        # Eliminar la restricción de clave foránea
+        cursor.execute("ALTER TABLE rolxmodulo DROP FOREIGN KEY rolxmodulo_ibfk_1")
+
+        # Insertar el nuevo rol
         cursor.execute("INSERT INTO rol (NombreRol, DescripcionRol) VALUES (%s, %s)", 
                        (role.nombre, role.descripcion))
         conn.commit()
+
+        # Volver a añadir la restricción de clave foránea
+        cursor.execute("ALTER TABLE rolxmodulo ADD CONSTRAINT rolxmodulo_ibfk_1 FOREIGN KEY (idrol) REFERENCES rol(IdRol) ON DELETE CASCADE ON UPDATE CASCADE")
+        conn.commit()
+
         return {"message": "Role created successfully"}
-                
+
     except mysql.connector.Error as err:
         conn.rollback()
         raise HTTPException(status_code=500, detail=str(err))
