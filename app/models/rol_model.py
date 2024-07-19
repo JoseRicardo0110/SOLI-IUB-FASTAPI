@@ -15,3 +15,6 @@ class RoleModule(BaseModel):
 class RoleCreate(BaseModel):
     nombre: str
     descripcion: str
+
+class RoleDelete(BaseModel):
+    id: int 

@@ -7,11 +7,38 @@ import mysql.connector
 from models.rol_model import Modulo
 from models.rol_model import RoleModule
 from models.rol_model import RoleCreate
+from models.rol_model import RoleDelete
 
 
 router = APIRouter()
 
 nuevo_rol = RolController()
+
+@router.delete("/delete_rol")
+def delete_rol(role: RoleDelete):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Eliminar la restricción de clave foránea si es necesario
+        cursor.execute("ALTER TABLE rolxmodulo DROP FOREIGN KEY rolxmodulo_ibfk_1")
+        cursor.execute("ALTER TABLE rolxusuario DROP FOREIGN KEY rolxusuario_ibfk_2")
+        
+        # Eliminar el rol
+        cursor.execute("DELETE FROM rol WHERE IdRol = %s", (role.id,))
+        conn.commit()
+        
+        # Volver a añadir las restricciones de clave foránea
+        cursor.execute("ALTER TABLE rolxmodulo ADD CONSTRAINT rolxmodulo_ibfk_1 FOREIGN KEY (idrol) REFERENCES rol(IdRol) ON DELETE CASCADE ON UPDATE CASCADE")
+        cursor.execute("ALTER TABLE rolxusuario ADD CONSTRAINT rolxusuario_ibfk_2 FOREIGN KEY (IdRol) REFERENCES rol(IdRol) ON DELETE CASCADE ON UPDATE CASCADE")
+        conn.commit()
+        
+        return {"message": "Role deleted successfully"}
+    except mysql.connector.Error as err:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=str(err))
+    finally:
+        conn.close()
 
 @router.post("/create_rol")
 def create_rol(role: RoleCreate):
