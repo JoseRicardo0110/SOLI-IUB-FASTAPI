@@ -19,19 +19,32 @@ def create_rol(role: RoleCreate):
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        # Eliminar la restricción de clave foránea
+        # Verificar y eliminar las restricciones de claves foráneas
         cursor.execute("SHOW CREATE TABLE rolxmodulo")
-        result = cursor.fetchone()
-        create_table_sql = result[1]
-        foreign_key_name = None
+        result_rolxmodulo = cursor.fetchone()
+        create_table_sql_rolxmodulo = result_rolxmodulo[1]
+        foreign_key_name_rolxmodulo = None
 
-        for line in create_table_sql.split('\n'):
+        for line in create_table_sql_rolxmodulo.split('\n'):
             if 'FOREIGN KEY' in line and 'REFERENCES `rol`' in line:
-                foreign_key_name = line.split('CONSTRAINT `')[1].split('`')[0]
+                foreign_key_name_rolxmodulo = line.split('CONSTRAINT `')[1].split('`')[0]
                 break
 
-        if foreign_key_name:
-            cursor.execute(f"ALTER TABLE rolxmodulo DROP FOREIGN KEY {foreign_key_name}")
+        if foreign_key_name_rolxmodulo:
+            cursor.execute(f"ALTER TABLE rolxmodulo DROP FOREIGN KEY {foreign_key_name_rolxmodulo}")
+
+        cursor.execute("SHOW CREATE TABLE rolxusuario")
+        result_rolxusuario = cursor.fetchone()
+        create_table_sql_rolxusuario = result_rolxusuario[1]
+        foreign_key_name_rolxusuario = None
+
+        for line in create_table_sql_rolxusuario.split('\n'):
+            if 'FOREIGN KEY' in line and 'REFERENCES `rol`' in line:
+                foreign_key_name_rolxusuario = line.split('CONSTRAINT `')[1].split('`')[0]
+                break
+
+        if foreign_key_name_rolxusuario:
+            cursor.execute(f"ALTER TABLE rolxusuario DROP FOREIGN KEY {foreign_key_name_rolxusuario}")
 
         # Modificar la columna IdRol para que sea autoincremental
         cursor.execute("ALTER TABLE rol MODIFY COLUMN IdRol INT NOT NULL AUTO_INCREMENT")
@@ -41,9 +54,13 @@ def create_rol(role: RoleCreate):
                        (role.nombre, role.descripcion))
         conn.commit()
 
-        # Volver a añadir la restricción de clave foránea
-        if foreign_key_name:
-            cursor.execute(f"ALTER TABLE rolxmodulo ADD CONSTRAINT {foreign_key_name} FOREIGN KEY (idrol) REFERENCES rol(IdRol) ON DELETE CASCADE ON UPDATE CASCADE")
+        # Volver a añadir las restricciones de claves foráneas
+        if foreign_key_name_rolxmodulo:
+            cursor.execute(f"ALTER TABLE rolxmodulo ADD CONSTRAINT {foreign_key_name_rolxmodulo} FOREIGN KEY (idrol) REFERENCES rol(IdRol) ON DELETE CASCADE ON UPDATE CASCADE")
+
+        if foreign_key_name_rolxusuario:
+            cursor.execute(f"ALTER TABLE rolxusuario ADD CONSTRAINT {foreign_key_name_rolxusuario} FOREIGN KEY (IdRol) REFERENCES rol(IdRol) ON DELETE CASCADE ON UPDATE CASCADE")
+
         conn.commit()
 
         return {"message": "Role created successfully"}
