@@ -22,6 +22,9 @@ def create_rol(role: RoleCreate):
         # Eliminar la restricción de clave foránea
         cursor.execute("ALTER TABLE rolxmodulo DROP FOREIGN KEY rolxmodulo_ibfk_1")
 
+        # Modificar la columna IdRol para que sea autoincremental
+        cursor.execute("ALTER TABLE rol MODIFY COLUMN IdRol INT NOT NULL AUTO_INCREMENT")
+
         # Insertar el nuevo rol
         cursor.execute("INSERT INTO rol (NombreRol, DescripcionRol) VALUES (%s, %s)", 
                        (role.nombre, role.descripcion))
