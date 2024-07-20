@@ -187,7 +187,7 @@ class UserController:
         try:
             conn = get_db_connection()
             cursor = conn.cursor()
-            cursor.execute("SELECT * FROM usuario")
+            cursor.execute("SELECT usuario.*, rol.NombreRol, rol.DescripcionRol FROM usuario JOIN rolxusuario ON usuario.id = rolxusuario.IdXUsuario JOIN rol ON rolxusuario.IdRol = rol.IdRol;")
             result = cursor.fetchall()
             payload = []
             content = {} 
@@ -200,7 +200,10 @@ class UserController:
                     'nombre':data[4],
                     'apellido':data[5],
                     'documento':data[6],
-                    'teléfono':data[7]
+                    'teléfono':data[7],
+                    'nombrerol':data[8],
+                    'descripcion':data[9]
+
                 }
                 payload.append(content)
                 content = {}
