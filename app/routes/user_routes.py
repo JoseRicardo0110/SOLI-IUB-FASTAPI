@@ -16,7 +16,7 @@ def create_user(user: UserCreate):
         
         # Insertar el nuevo usuario
         cursor.execute("""
-            INSERT INTO usuario (IdArea, usuario, contrasena, nombre, apellido, documento, telefono, correo) 
+            INSERT INTO usuario (IdArea, usuario, contrasena, nombre, apellido, documento, teléfono, correo) 
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         """, (user.IdArea, user.usuario, user.contrasena, user.nombre, user.apellido, user.documento, user.telefono, user.correo))
         user_id = cursor.lastrowid
