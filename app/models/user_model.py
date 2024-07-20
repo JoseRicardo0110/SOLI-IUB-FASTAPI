@@ -17,4 +17,14 @@ class userdb(BaseModel):
     usuario: str
     contrasena:str
 
+class UserCreate(BaseModel):
+    IdArea: int
+    usuario: str
+    contrasena: str
+    nombre: str
+    apellido: str
+    documento: str
+    telefono: str
+    correo: str
+    rol: int
    
