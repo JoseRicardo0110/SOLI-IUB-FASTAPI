@@ -23,9 +23,9 @@ def create_user(user: UserCreate):
 
         # Asignar rol al nuevo usuario
         cursor.execute("""
-            INSERT INTO rolxusuario (IdXUsuario, IdRol) 
-            VALUES (%s, %s)
-        """, (user_id, user.rol))
+            INSERT INTO rolxusuario (IdXUsuario, IdRol, ValorRolXUsuario, DescripcionRolXUsuario) 
+            VALUES (%s, %s, %s, %s)
+        """, (user_id, user.rol, 'Default Value', 'Default Description'))
 
         conn.commit()
 
