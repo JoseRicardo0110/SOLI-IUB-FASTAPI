@@ -201,8 +201,9 @@ class UserController:
                     'apellido':data[5],
                     'documento':data[6],
                     'teléfono':data[7],
-                    'nombrerol':data[8],
-                    'descripcion':data[9]
+                    'correo':data[8],
+                    'nombrerol':data[9],
+                    'descripcion':data[10]
 
                 }
                 payload.append(content)
