@@ -35,7 +35,7 @@ class UserController:
         try:
             conn = get_db_connection()
             cursor = conn.cursor()
-            cursor.execute("SELECT usuario.usuario, usuario.contrasena, usuario.id, usuario.nombre, rolxusuario.IdRol FROM usuario join rolxusuario on usuario.id = rolxusuario.IdXUsuario WHERE correo=%s and contrasena=%s",(loginvar.usuario,loginvar.contrasena))
+            cursor.execute("SELECT usuario.usuario, usuario.contrasena, usuario.id, usuario.nombre, rolxusuario.IdRol FROM usuario join rolxusuario on usuario.id = rolxusuario.IdXUsuario WHERE correo=%s and (contrasena=%s or idGoogle=%s) ",(loginvar.usuario,loginvar.contrasena,loginvar.contrasena))
             result = cursor.fetchone()
             if result:
                 # Definir el tiempo de expiración del token
