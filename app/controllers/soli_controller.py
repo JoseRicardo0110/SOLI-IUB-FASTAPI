@@ -44,7 +44,7 @@ class solicitudController:
             # Prepare the SQL INSERT query with only essential fields
             
 
-            cursor.execute("INSERT INTO solicitud (idUsuario, IdTipoSolicitud, Asunto, FechaCreacion, estado) VALUES (%s, %s, %s, %s, %s)", (solicitud.idUsuario, solicitud.IdTipoSolicitud, solicitud.Asunto, solicitud.FechaCreacion,'sin asignar'))
+            cursor.execute("INSERT INTO solicitud (idUsuario, IdTipoSolicitud,idpersonaAsignada, Asunto, FechaCreacion, estado) VALUES (%s, %s,%s, %s, %s, %s)", (solicitud.idUsuario, solicitud.IdTipoSolicitud,0, solicitud.Asunto, solicitud.FechaCreacion,'sin asignar'))
             # Commit your changes
             conn.commit()
             
