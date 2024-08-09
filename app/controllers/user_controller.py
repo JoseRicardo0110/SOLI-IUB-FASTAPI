@@ -142,7 +142,7 @@ class UserController:
                     'nombre':result[4],
                     'apellido':result[5],
                     'documento':result[6],
-                    'teléfono':result[7],
+                    'telefono':result[7],
                     'correo':result[8],
                     'idGoogle':result[9]
             }
