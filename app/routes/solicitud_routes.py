@@ -52,7 +52,7 @@ def get_report(request: ReportRequest):
 
         result = execute_query(query, params)
         
-        # Convert result to DataFrame and save as Excel
+        # Convert result to DataFrame and save as Excel men
         df = pd.DataFrame(result)
         file_path = "/tmp/report.xlsx"
         df.to_excel(file_path, index=False)
