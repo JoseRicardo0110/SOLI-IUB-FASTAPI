@@ -81,24 +81,3 @@ def get_report(request: ReportRequest):
     except mysql.connector.Error as err:
         print("MySQL Error:", err)  # Debug print
         raise HTTPException(status_code=500, detail=str(err))
-
-
-@router.put("/update_TipoSolicitud/{TipoSolicitud_id}")
-async def update_TipoSolicitud(TipoSolicitud_id: int, data: TipoSolicitud):
-    rpta = nuevo_solicitud.update_TipoSolicitud(TipoSolicitud_id,data)
-    return rpta
-
-@router.delete("/delete_TipoSolicitud/{TipoSolicitud_id}")
-async def delete_TipoSolicitud(TipoSolicitud_id: int):
-    rpta = nuevo_solicitud.delete_TipoSolicitud(TipoSolicitud_id)
-    return rpta
-
-@router.get("/get_TipoSolicitudes/")
-async def get_TipoSolicitudes():
-    rpta = nuevo_solicitud.get_TipoSolicitudes()
-    return rpta
-
-@router.get("/get_TipoSolicitud/{TipoSolicitud_id}", response_model=TipoSolicitud)
-async def get_TipoSolicitud(TipoSolicitud_id: int):
-    rpta = nuevo_solicitud.get_TipoSolicitud(TipoSolicitud_id)
-    return rpta
