@@ -5,7 +5,8 @@ from models.solicitud_model import TipoSolicitud
 from typing import Optional
 from pydantic import BaseModel
 from starlette.responses import FileResponse
-import os  # Import necesario para verificar la existencia del archivo
+import os
+import datetime
 
 router = APIRouter()
 
@@ -16,6 +17,11 @@ class ReportRequest(BaseModel):
     start_date: str
     end_date: str
     area_id: Optional[int] = None
+
+
+def convert_date_format(date_str: str) -> str:
+    """Convert date from Y-m-d to d/m/Y to match database format."""
+    return datetime.datetime.strptime(date_str, "%Y-%m-%d").strftime("%d/%m/%Y")
 
 
 def execute_query(query: str, params: tuple):
@@ -31,24 +37,57 @@ def get_report(request: ReportRequest):
     try:
         print("Request Data:", request)  # Debug print
 
+        # Convertir las fechas al formato de la base de datos
+        start_date = convert_date_format(request.start_date)
+        end_date = convert_date_format(request.end_date)
+
         if request.report_type == "sin_asignar":
-            query = "SELECT * FROM solicitud WHERE idpersonaAsignada = 0 AND FechaCreacion BETWEEN %s AND %s"
-            params = (request.start_date, request.end_date)
+            query = """
+                SELECT * FROM solicitud 
+                WHERE idpersonaAsignada = 0 
+                AND FechaCreacion BETWEEN %s AND %s
+            """
+            params = (start_date, end_date)
         elif request.report_type == "pendientes":
-            query = "SELECT * FROM solicitud WHERE estado = 'pendiente' AND FechaCreacion BETWEEN %s AND %s"
-            params = (request.start_date, request.end_date)
+            query = """
+                SELECT * FROM solicitud 
+                WHERE estado = 'pendiente' 
+                AND FechaCreacion BETWEEN %s AND %s
+            """
+            params = (start_date, end_date)
         elif request.report_type == "finalizadas":
-            query = "SELECT * FROM solicitud WHERE estado = 'finalizada' AND FechaCreacion BETWEEN %s AND %s"
-            params = (request.start_date, request.end_date)
+            query = """
+                SELECT * FROM solicitud 
+                WHERE estado = 'finalizada' 
+                AND FechaCreacion BETWEEN %s AND %s
+            """
+            params = (start_date, end_date)
         elif request.report_type == "pendientes_area" and request.area_id:
-            query = "SELECT s.* FROM solicitud s JOIN usuario u ON s.idUsuario = u.id JOIN area a ON u.IdArea = a.IdArea WHERE s.estado = 'pendiente' AND a.IdArea = %s AND s.FechaCreacion BETWEEN %s AND %s"
-            params = (request.area_id, request.start_date, request.end_date)
+            query = """
+                SELECT s.* 
+                FROM solicitud s 
+                JOIN usuario u ON s.idUsuario = u.id 
+                WHERE s.estado = 'pendiente' 
+                AND u.IdArea = %s 
+                AND s.FechaCreacion BETWEEN %s AND %s
+            """
+            params = (request.area_id, start_date, end_date)
         elif request.report_type == "finalizadas_area" and request.area_id:
-            query = "SELECT s.* FROM solicitud s JOIN usuario u ON s.idUsuario = u.id JOIN area a ON u.IdArea = a.IdArea WHERE s.estado = 'finalizada' AND a.IdArea = %s AND s.FechaCreacion BETWEEN %s AND %s"
-            params = (request.area_id, request.start_date, request.end_date)
+            query = """
+                SELECT s.* 
+                FROM solicitud s 
+                JOIN usuario u ON s.idUsuario = u.id 
+                WHERE s.estado = 'finalizada' 
+                AND u.IdArea = %s 
+                AND s.FechaCreacion BETWEEN %s AND %s
+            """
+            params = (request.area_id, start_date, end_date)
         else:
-            query = "SELECT * FROM solicitud WHERE FechaCreacion BETWEEN %s AND %s"
-            params = (request.start_date, request.end_date)
+            query = """
+                SELECT * FROM solicitud 
+                WHERE FechaCreacion BETWEEN %s AND %s
+            """
+            params = (start_date, end_date)
 
         print("Executing Query:", query)  # Debug print
         print("With Parameters:", params)  # Debug print
@@ -60,19 +99,20 @@ def get_report(request: ReportRequest):
         if not result:
             raise HTTPException(status_code=404, detail="No se encontraron datos para los parámetros especificados")
 
-        # Create an Excel workbook and add data
+        # Crear el archivo Excel
         wb = Workbook()
         ws = wb.active
         ws.title = "Report"
 
-        # Write header
+        # Escribir los encabezados
         headers = result[0].keys()
         ws.append(headers)
 
-        # Write data rows
+        # Escribir los datos
         for row in result:
             ws.append(list(row.values()))
 
+        # Guardar el archivo
         file_path = "/tmp/report.xlsx"
         wb.save(file_path)
         
