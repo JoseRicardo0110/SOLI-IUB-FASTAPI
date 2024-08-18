@@ -5,6 +5,7 @@ from models.solicitud_model import TipoSolicitud
 from typing import Optional
 from pydantic import BaseModel
 from starlette.responses import FileResponse
+import os  # Import necesario para verificar la existencia del archivo
 
 router = APIRouter()
 
@@ -56,7 +57,7 @@ def get_report(request: ReportRequest):
         print("Query Result:", result)  # Debug print
         
         if not result:
-            raise HTTPException(status_code=404, detail="No data found for the specified parameters")
+            raise HTTPException(status_code=404, detail="No se encontraron datos para los parámetros especificados")
 
         # Create an Excel workbook and add data
         wb = Workbook()
@@ -74,6 +75,9 @@ def get_report(request: ReportRequest):
         file_path = "/tmp/report.xlsx"
         wb.save(file_path)
         
+        if not os.path.exists(file_path):
+            raise HTTPException(status_code=500, detail="El archivo Excel no se generó correctamente.")
+
         print("Excel file created at:", file_path)  # Debug print
 
         return FileResponse(file_path, filename="report.xlsx")
@@ -81,3 +85,6 @@ def get_report(request: ReportRequest):
     except mysql.connector.Error as err:
         print("MySQL Error:", err)  # Debug print
         raise HTTPException(status_code=500, detail=str(err))
+    except Exception as e:
+        print("Error:", e)  # Debug print
+        raise HTTPException(status_code=500, detail=str(e))
