@@ -17,6 +17,7 @@ class ReportRequest(BaseModel):
     end_date: str
     area_id: Optional[int] = None
 
+
 def execute_query(query: str, params: tuple):
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
