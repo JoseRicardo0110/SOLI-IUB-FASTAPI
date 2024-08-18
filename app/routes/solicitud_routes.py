@@ -4,16 +4,13 @@ from models.solicitud_model import TipoSolicitud
 from typing import Optional
 from pydantic import BaseModel
 from starlette.responses import FileResponse
-import pandas as pd
+import openpyxl
+from openpyxl import Workbook
 
 router = APIRouter()
 
 nuevo_solicitud = SolicitudController()
 
-"""@router.post("/create_user/")
-async def create_user(user: User):
-    rpta = nuevo_solicitud.create_user(user)
-    return rpta"""
 def execute_query(query: str, params: tuple):
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
@@ -51,12 +48,24 @@ def get_report(request: ReportRequest):
             params = (request.start_date, request.end_date)
 
         result = execute_query(query, params)
-        
-        # Convert result to DataFrame and save as Excel men
-        df = pd.DataFrame(result)
+
+        # Crear archivo Excel con openpyxl
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Report"
+
+        # Escribir encabezados
+        if result:
+            headers = list(result[0].keys())
+            ws.append(headers)
+
+            # Escribir datos
+            for row in result:
+                ws.append(list(row.values()))
+
         file_path = "/tmp/report.xlsx"
-        df.to_excel(file_path, index=False)
-        
+        wb.save(file_path)
+
         return FileResponse(file_path, filename="report.xlsx")
 
     except mysql.connector.Error as err:
@@ -78,7 +87,7 @@ async def get_TipoSolicitudes():
     rpta = nuevo_solicitud.get_TipoSolicitudes()
     return rpta
 
-@router.get("/get_TipoSolicitud/{TipoSolicitud_id}",response_model=TipoSolicitud)
+@router.get("/get_TipoSolicitud/{TipoSolicitud_id}", response_model=TipoSolicitud)
 async def get_TipoSolicitud(TipoSolicitud_id: int):
     rpta = nuevo_solicitud.get_TipoSolicitud(TipoSolicitud_id)
     return rpta
