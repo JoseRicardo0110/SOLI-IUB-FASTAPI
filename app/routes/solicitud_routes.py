@@ -18,11 +18,9 @@ class ReportRequest(BaseModel):
     end_date: str
     area_id: Optional[int] = None
 
-
 def convert_date_format(date_str: str) -> str:
     """Convert date from Y-m-d to d/m/Y to match database format."""
     return datetime.datetime.strptime(date_str, "%Y-%m-%d").strftime("%d/%m/%Y")
-
 
 def execute_query(query: str, params: tuple):
     conn = get_db_connection()
@@ -105,7 +103,7 @@ def get_report(request: ReportRequest):
         ws.title = "Report"
 
         # Escribir los encabezados
-        headers = result[0].keys()
+        headers = list(result[0].keys())
         ws.append(headers)
 
         # Escribir los datos
