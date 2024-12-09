@@ -432,6 +432,44 @@ class solicitudController:
             conn.rollback()
         finally:
             conn.close()
+    
+    def get_SolicitudesPorUsuario(self, userId: int):
+        try:
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT sol.*, usua.nombre, tp.valor FROM solicitud sol "
+                "JOIN usuario usua ON sol.idUsuario = usua.id "
+                "JOIN tiposolicitud tp ON sol.IdTipoSolicitud = tp.IDTipoSolicitud "
+                "WHERE usua.id = %s", (userId,)
+            )
+            results = cursor.fetchall()
+            payload = []
+            for result in results:
+                content = {
+                    'idSolicitud': int(result[0]),
+                    'idUsuario': int(result[1]),
+                    'IdTipoSolicitud': int(result[2]),
+                    'idpersonaAsignada': int(result[3]),
+                    'Archivos': result[4],
+                    'Asunto': result[5],
+                    'nota': result[6],
+                    'FechaCreacion': result[7],
+                    'FechaUltimaModificacion': result[8],
+                    'estado': result[9],
+                    'prioridad': result[10],
+                    'nombre': result[11],
+                    'valor': result[12]
+                }
+                payload.append(content)
+            json_data = jsonable_encoder(payload)
+            return json_data
+        except mysql.connector.Error as err:
+            conn.rollback()
+            return {"error": "Failed to fetch data"}
+        finally:
+            conn.close()
+
 
     # TODAS LAS SOLICITUDES
     def get_Solicitudes(self):

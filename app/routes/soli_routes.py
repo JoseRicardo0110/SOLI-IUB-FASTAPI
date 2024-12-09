@@ -71,6 +71,12 @@ async def get_Solicitud(Solicitud_id: int):
     rpta = nuevo_soli.get_Solicitud(Solicitud_id)
     return rpta
 
+# Nuevo endpoint para obtener las solicitudes de un usuario específico
+@router.get("/get_Solicitudp/{userId}")
+async def get_SolicitudesPorUsuario(userId: int):
+    rpta = nuevo_soli.get_SolicitudesPorUsuario(userId)
+    return rpta
+
 
 @router.get("/get_soli/{id_soli}")
 async def get_soli(id_soli: int):
